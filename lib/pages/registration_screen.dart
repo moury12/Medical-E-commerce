@@ -49,7 +49,7 @@ final AuthController controller = Get.put(AuthController());
                   rightIconBgColor: Colors.transparent,
                   rightIconColor: AppColors.kPrimaryColor,
                   title: 'District',
-                  //dwItems: AuthController.to.districtList,
+                  dwItems: AuthController.to.disList,
                   type: DropdownListType.object,
                   valueKey: 'id',
                   viewKey: 'name',
@@ -57,7 +57,7 @@ final AuthController controller = Get.put(AuthController());
                   onChange: (val) {
                     controller.selectedDistrict.value = val;
 
-                  }, dwItems: [],),
+                  }, ),
               TitleDropdown(
                   borderColor: AppColors.kPrimaryColor.withOpacity(.8),
                   hintText: 'Select Area',
@@ -67,11 +67,7 @@ final AuthController controller = Get.put(AuthController());
                   rightIconColor: AppColors.kPrimaryColor,
                   title: 'Area',
                   dwItems:[],
-                  // AuthController.to.areaList
-                  //     .where((p0) => selectedDistrict = null
-                  //     ? p0.districtId == selectedDistrict
-                  //     : true)
-                  //     .toList(),
+
                   type: DropdownListType.object,
                   valueKey: 'id',
                   viewKey: 'name',
