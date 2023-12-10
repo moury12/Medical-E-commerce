@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medi_source_apitest/pages/home_page.dart';
 import 'package:medi_source_apitest/pages/registration_screen.dart';
 
 class SplashScreen extends StatelessWidget {
@@ -14,7 +15,8 @@ class SplashScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: () => Get.toNamed(SignupScreen.routeName), child: Text('Reg'))
+            ElevatedButton(onPressed: () => Get.toNamed(SignupScreen.routeName), child: Text('Reg')),
+            ElevatedButton(onPressed: () => Get.toNamed(HomePage.routeName), child: Text('home'))
           ],
         ),
       ),

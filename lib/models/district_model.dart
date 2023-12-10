@@ -15,11 +15,11 @@ class DistrictModel {
 
   factory DistrictModel.fromJson(Map<String, dynamic> json) {
     return DistrictModel(
-      id: json['id'].toString() ?? '',
-      name: json['name'].toString() ?? '',
-      status: json['status'].toString() ?? '',
-      createdAt: json['created_at'].toString() ?? '',
-      updatedAt:json['updated_at'].toString() ?? '',
+      id: json['id'].toString() =='null'?'':json['id'].toString(),
+      name: json['name'].toString() =='null'?'':json['name'].toString(),
+      status: json['status'].toString() =='null'?'':json['status'].toString(),
+      createdAt: json['created_at'].toString() =='null'?'':json['created_at'].toString(),
+      updatedAt:json['updated_at'].toString() =='null'?'':json['updated_at'].toString(),
     );
   }
 
@@ -53,11 +53,11 @@ class SubDistrict {
   factory SubDistrict.fromJson(Map<String, dynamic> json) {
     return SubDistrict(
       id: json['id'].toString()??'',
-      districtId: json['district_id'].toString()??'',
-      name: json['name'].toString()??'',
-      status: json['status'].toString()??'',
-      createdAt: json['created_at'].toString()??'',
-      updatedAt: json['updated_at'].toString()??'',
+      districtId: json['district_id'].toString()=='null'?'':json['district_id'].toString(),
+      name: json['name'].toString()=='null'?'':json['name'].toString(),
+      status: json['status'].toString()=='null'?'':json['status'].toString(),
+      createdAt: json['created_at'].toString()=='null'?'':json['created_at'].toString(),
+      updatedAt: json['updated_at'].toString()=='null'?'':json['updated_at'].toString(),
     );
   }
 
