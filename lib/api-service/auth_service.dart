@@ -69,4 +69,46 @@ areaList.add(SubDistrict.fromJson(dis));
     }
     return {};
   }
+  static Future<dynamic> verifyAfterLoginOtp(dynamic body) async{
+    final respons = await ServiceAPI.genericCall(url: '${ServiceAPI.apiUrl}verify-otp',
+        httpMethod:
+    HttpMethod.multipartFilePost,
+    noNeedAuthToken: true,isLoadingEnable: true,allInfoField: body);
+    if(respons['status']!=null && respons['status']){
+      return respons['data'];
+    }if(respons['status']!=null&& !respons['status']){
+      return ServiceAPI.showAlert(errorMessageJson(respons['message']));
+    }
+  }
+  static Future<bool> forgotPassword(dynamic body) async{
+final respons = await ServiceAPI.genericCall(url: '${ServiceAPI
+    .apiUrl}otp-send', httpMethod: HttpMethod.multipartFilePost,allInfoField:
+body, noNeedAuthToken: true,isLoadingEnable: true);
+globalLogger.d(respons,'forgetPassword');
+if(respons['status']!= null&& respons['status']){
+  return true;
+}
+else{
+  ServiceAPI.showAlert(errorMessageJson(respons['message']));
+}
+return false;
+  }
+
+  static Future<bool> resetPassword (dynamic body) async{
+    final respons =await ServiceAPI.genericCall(url: '${ServiceAPI
+        .apiUrl}new-password-set', httpMethod: HttpMethod.multipartFilePost,
+        noNeedAuthToken: true,allInfoField: body,isLoadingEnable: true);
+    globalLogger.d(respons,'resetPassword' );
+    if(respons['status']!=null && respons['status']){
+      return true;
+    }
+    else{
+      ServiceAPI.showAlert(errorMessageJson(respons['message']));
+    }
+    return false;
+  }
+  // s
+// tatic Future<bool> logOutCall({ required Function ()
+  // })
+
 }

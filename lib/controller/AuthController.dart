@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/api-service/auth_service.dart';
 import 'package:medi_source_apitest/constant/enums.dart';
+import 'package:medi_source_apitest/controller/home_controller.dart';
+import 'package:medi_source_apitest/controller/user_controller.dart';
+import 'package:medi_source_apitest/global.dart';
 import 'package:medi_source_apitest/models/district_model.dart';
+import 'package:medi_source_apitest/pages/home_page.dart';
 import 'package:medi_source_apitest/pages/login_page.dart';
 import 'package:medi_source_apitest/pages/otp_verification_page.dart';
+import 'package:mh_core/services/api_service.dart';
 import 'package:mh_core/utils/global.dart';
 
 class AuthController extends GetxController {
   static AuthController get to => Get.find();
   RxString registerPhone = ''.obs;
   RxMap loginCredentials = {}.obs;
+  RxString otp = ''.obs;
   Rx<bool> isSelected = RxBool(false);
   RxList<DistrictModel> disList = <DistrictModel>[].obs;
   RxList<SubDistrict> areaList = <SubDistrict>[].obs;
@@ -77,6 +83,46 @@ class AuthController extends GetxController {
     }
     else{
       showSnackBar(msg: 'faild');
+    }
+  }
+  void registerOtpVerification() async{
+    final accessToken = await AuthService.verifyAfterLoginOtp
+      ({'phone':registerPhone,'otp':otp.value});
+    globalLogger.d(accessToken, 'accessToken');
+    if(accessToken['token']!=null&&accessToken['token'].isNotEmpty){
+      afterLogin(accessToken['token']);
+    }
+  }
+
+  void afterLogin(accessToken) {
+    setLocaldata('accessToken', accessToken);
+    ServiceAPI.setAuthToken(accessToken);
+    setLocaldata('isLoggedIn', true);
+    Get.put<UserController>(UserController(),permanent: true);
+    Get.put<HomeController>(HomeController(),permanent: true);
+    Get.offAndToNamed(HomePage.routeName);
+  }
+  Future<void> forgetpassword(String phone, [bool isResend= false]) async{
+    registerPhone(phone);
+    bool issendOtp=await AuthService.forgotPassword({
+     'phone' : phone
+    });
+    if(issendOtp){
+      showSnackBar(msg: 'Otp send');
+      if(!isResend){
+        Get.offAndToNamed(OtpVerificationPage.routeName);
+      }
+    }
+  }
+  void verifyPassword(String password , String cPAssword)async{
+    bool isVerified= await AuthService.resetPassword({
+      'phone':registerPhone.value,
+          'new_password':password,
+    'confirm_password':cPAssword
+    });
+    if(isVerified){
+      showSnackBar(msg: 'Verified successfuly');
+      Get.offAndToNamed(LoginPage.routeName);
     }
   }
 }
