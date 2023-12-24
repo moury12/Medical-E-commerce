@@ -6,6 +6,7 @@ import 'package:medi_source_apitest/controller/home_controller.dart';
 import 'package:medi_source_apitest/controller/user_controller.dart';
 import 'package:medi_source_apitest/global.dart';
 import 'package:medi_source_apitest/models/district_model.dart';
+import 'package:medi_source_apitest/pages/create_new_password_page.dart';
 import 'package:medi_source_apitest/pages/home_page.dart';
 import 'package:medi_source_apitest/pages/login_page.dart';
 import 'package:medi_source_apitest/pages/otp_verification_page.dart';
@@ -16,6 +17,8 @@ class AuthController extends GetxController {
   static AuthController get to => Get.find();
   RxString registerPhone = ''.obs;
   RxMap loginCredentials = {}.obs;
+  bool get isLoggedIn => getLocaldata('isLoggedIn')??false;
+  String get getAuthToken => getLocaldata('authToken') ?? '';
   RxString otp = ''.obs;
   Rx<bool> isSelected = RxBool(false);
   RxList<DistrictModel> disList = <DistrictModel>[].obs;
@@ -25,10 +28,22 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     getAreaData();
-    // TODO: implement onInit
+    globalLogger.d(isLoggedIn, "isLoggedIn");
+if(isLoggedIn){
+  ServiceAPI.setAuthToken(getAuthToken);
+  Get.put<UserController>(UserController(),permanent: true);
+  Get.put<HomeController>(HomeController(),permanent: true);
+  getUserInfoFromLocal();
+}
     super.onInit();
   }
-
+getUserInfoFromLocal(){
+    final data =getLocaldata(activeUserLocaldata);
+loginCredentials.value=data ?? {
+  "phone": '',
+  "password": '',
+};
+}
   Future<void> getAreaData() async {
     final data = await AuthService.getAreaData();
     disList.value = data[AddressType.district] as List<DistrictModel>;
@@ -36,10 +51,10 @@ class AuthController extends GetxController {
   }
   void loginRequest(String emailOrPhone, String password, /*bool isRememberMe*/) async {
     registerPhone(emailOrPhone);
-    // setLocalData(activeUserLocalKey, {
-    //   "phone": emailOrPhone,
-    //   "password": password,
-    // });
+    setLocaldata(activeUserLocaldata, {
+      "phone": emailOrPhone,
+      "password": password,
+    });
     loginCredentials.value = {
       "phone": emailOrPhone,
       "password": password,
@@ -85,16 +100,22 @@ class AuthController extends GetxController {
       showSnackBar(msg: 'faild');
     }
   }
-  void registerOtpVerification() async{
+  void registerOtpVerification([bool isFromChangePassword= false]) async{
     final accessToken = await AuthService.verifyAfterLoginOtp
-      ({'phone':registerPhone,'otp':otp.value});
+      ({'phone':registerPhone.value,'otp':otp.value});
     globalLogger.d(accessToken, 'accessToken');
     if(accessToken['token']!=null&&accessToken['token'].isNotEmpty){
+    if(isFromChangePassword){
+      showSnackBar(msg: 'Otp Matched successfully!!');
+      Get.toNamed(CreateNewPasswordPage.routeName);
+    }
+    else{
       afterLogin(accessToken['token']);
+    }
     }
   }
 
-  void afterLogin(accessToken) {
+  void afterLogin(String accessToken) {
     setLocaldata('accessToken', accessToken);
     ServiceAPI.setAuthToken(accessToken);
     setLocaldata('isLoggedIn', true);

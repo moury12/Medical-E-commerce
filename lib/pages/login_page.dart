@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/constant/colorConstant.dart';
 import 'package:medi_source_apitest/controller/AuthController.dart';
+import 'package:medi_source_apitest/pages/forgot_password_page.dart';
 import 'package:medi_source_apitest/pages/registration_screen.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
 import 'package:mh_core/widgets/textfield/custom_textfield.dart';
@@ -127,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                               alignment: AlignmentDirectional.centerEnd,
                               child: TextButton(
                                 onPressed: () {
-
+                                  Get.toNamed(ForgotPasswordPage.routeName);
                                 },
                                 child:  Text('Forgot Password?'),
                               ),

@@ -67,8 +67,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 onPressed: () async {
                   if (phoneController.text.isEmpty) {
                     showSnackBar(msg: 'Enter Phone Number First!');
-                  } else {
-                   await AuthController.to.forgetpassword(phoneController.text);
+                  }
+                  else{
+                    AuthController.to.forgetpassword(phoneController.text);
                   }
                   // Get.toNamed(OtpVerificationPage.routeName);
                 },

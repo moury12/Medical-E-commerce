@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medi_source_apitest/controller/AuthController.dart';
 import 'package:medi_source_apitest/otpContainer.dart';
+import 'package:medi_source_apitest/pages/forgot_password_page.dart';
+import 'package:medi_source_apitest/pages/login_page.dart';
 import 'package:medi_source_apitest/theme_data.dart';
 import 'package:mh_core/utils/global.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
@@ -114,13 +117,32 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                 marginHorizontal: 0,
                 label: 'Verify',
                 onPressed: () {
+                  print('object');
+                  if (firstOtpController.text.isNotEmpty &&
+                      secondOtpController.text.isNotEmpty &&
+                      thirdOtpController.text.isNotEmpty &&
+                      forthOtpController.text.isNotEmpty &&
+                      fifthOtpController.text.isNotEmpty &&
+                      sixthOtpController.text.isNotEmpty){
+                    AuthController.to.otp(firstOtpController.text+secondOtpController.text+thirdOtpController.text+forthOtpController.text+fifthOtpController.text+sixthOtpController.text);
+if (previousRoute==LoginPage.routeName){
+  AuthController.to.registerOtpVerification();
+}else if(previousRoute==ForgotPasswordPage.routeName){
+  AuthController.to.registerOtpVerification(true);
 
+}else{
+  showSnackBar(msg: 'please enter 6 digit');
+}
+                  }else{
+                    showSnackBar(msg: 'field required');
+                  }
                 },
               ),
               Center(
                 child: TextButton(
                   child: Text('Resend OTP'),
                   onPressed: () async {
+                    AuthController.to.forgetpassword(AuthController.to.registerPhone.value,true);
                   },
                 ),
               )

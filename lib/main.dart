@@ -9,11 +9,11 @@ import 'package:mh_core/utils/global.dart';
 
 import 'pages/splash_screen.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-ServiceAPI.domain('http://apitest.wiztecbd.com/');
-ServiceAPI.extraSlag('api/');
-await GetStorage.init();
+  await GetStorage.init();
+  ServiceAPI.domain('http://apitest.wiztecbd.com/');
+  ServiceAPI.extraSlag('api/');
   navigatorKey = GlobalKey<NavigatorState>();
   snackbarKey = GlobalKey<ScaffoldMessengerState>();
   runApp(const MyApp());
@@ -31,13 +31,12 @@ class MyApp extends StatelessWidget {
       scaffoldMessengerKey: snackbarKey,
       navigatorKey: navigatorKey,
       theme: ThemeData(
-
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
-      ),getPages: AppRoutes.routes(),
+      ),
+      getPages: AppRoutes.routes(),
       initialRoute: SplashScreen.routeName,
       initialBinding: AuthBindings(),
     );
   }
 }
-

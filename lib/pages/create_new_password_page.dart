@@ -120,23 +120,12 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
             CustomButton(
               marginHorizontal: 0,
               label: 'Reset Password',
-              onPressed: () {
-                if (isLoggedIn) {
-                  if (oldPasswordController.text.isEmpty ||
-                      passwordController.text.isEmpty ||
-                      confirmPasswordController.text.isEmpty) {
-                    showSnackBar(msg: 'All fields are required!');
-                  } else {
-AuthController.to.verifyPassword(passwordController.text,
-    confirmPasswordController.text);
-                  }
-                } else {
-                  if (passwordController.text == confirmPasswordController.text
-                      ) {
-                    showSnackBar(msg: 'password can\'t be same');
-                  } else {
-                       }
-                }
+              onPressed: (){
+if(passwordController.text.isEmpty||confirmPasswordController.text.isEmpty){
+  showSnackBar(msg: 'All fields required');
+}else{
+  AuthController.to.verifyPassword(passwordController.text,confirmPasswordController.text);
+}
               },
             ),
           ],
