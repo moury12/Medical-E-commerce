@@ -4,6 +4,7 @@ import 'package:medi_source_apitest/controller/AuthController.dart';
 import 'package:medi_source_apitest/pages/home_page.dart';
 import 'package:medi_source_apitest/pages/login_page.dart';
 import 'package:medi_source_apitest/pages/registration_screen.dart';
+import 'package:mh_core/utils/global.dart';
 
 class SplashScreen extends StatelessWidget {
   static const String routeName='/';
@@ -11,6 +12,7 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    globalLogger.d(AuthController.to.isLoggedIn,'status');
     Future.delayed(Duration(seconds: 3),(){
       Get.offAndToNamed(AuthController.to.isLoggedIn?HomePage.routeName:LoginPage.routeName);
     });

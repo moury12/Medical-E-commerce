@@ -33,6 +33,34 @@ class DistrictModel {
     };
   }
 }
+class SliderModel {
+  String? id;
+  String? image;
+  String? status;
+  String? createdAt;
+  String? updatedAt;
+
+  SliderModel({this.id, this.image, this.status, this.createdAt, this.updatedAt});
+
+  SliderModel.fromJson(Map<String, dynamic> json) {
+    id = json['id'].toString() == 'null' ? "" : json['id'].toString();
+    image = json['image'].toString() == 'null' ? "" : json['image'].toString();
+    status = json['status'].toString() == 'null' ? "" : json['status'].toString();
+    createdAt = json['created_at'].toString() == 'null' ? "" : json['created_at'].toString();
+    updatedAt = json['updated_at'].toString() == 'null' ? "" : json['updated_at'].toString();
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['image'] = image;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    return data;
+  }
+}
+
 class SubDistrict {
   String id;
   String districtId;
