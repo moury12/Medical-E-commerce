@@ -57,10 +57,76 @@ class HomeService{
       response['data']['data'].forEach((product){productList.add(ProductModel
           .fromJson
         (product));});
+      if(response['data']['next_page_url']!=null){
+
+        HomeController.to.pageCountForHome.value++;
+      }
+      else{
+        HomeController.to.initPageForHome(-1);
+      }
     }
+
     else if(response['status']!=null&&!response['status']){
       ServiceAPI.showAlert(errorMessageJson(response['message']));
     }
     return productList;
   }
+  static Future<List<ProductModel>> getProductSearchList({String? key ,String?
+  nextPageUrl}) async{
+    List<ProductModel> productList=[];
+
+    var url ='${ServiceAPI.apiUrl}products?${key!=null?'search=$key'
+        '&':''}pagination=20&category_id=${HomeController.to
+        .activeCategoryIdHome}&page=${nextPageUrl
+        ??'1'}';
+    final response= await ServiceAPI.genericCall(url: url, httpMethod:
+    HttpMethod.get);
+    globalLogger.d(response, "Get Company Route");
+    if(response['status']!=null&&response['status']){
+      response['data']['data'].forEach((product){productList.add(ProductModel
+          .fromJson
+        (product));});
+      if(response['data']['next_page_url']!=null){
+
+        HomeController.to.pageCountForHome.value++;
+      }
+      else{
+        HomeController.to.initPageForHome(-1);
+      }
+    }
+
+    else if(response['status']!=null&&!response['status']){
+      ServiceAPI.showAlert(errorMessageJson(response['message']));
+    }
+    return productList;
+  }
+  static Future<List<ProductModel>> getFlashProductList({String?
+  nextPageUrl}) async{
+    List<ProductModel> productList=[];
+
+    var url ='${ServiceAPI.apiUrl}products?pagination=20&category_id=${HomeController.to.flashCategoryIDHome}'
+        '&is_flash_sale=1&page=${nextPageUrl
+        ??'1'}';
+    final response= await ServiceAPI.genericCall(url: url, httpMethod:
+    HttpMethod.get);
+    globalLogger.d(response, "Get Company Route");
+    if(response['status']!=null&&response['status']){
+      response['data']['data'].forEach((product){productList.add(ProductModel
+          .fromJson
+        (product));});
+      if(response['data']['next_page_url']!=null){
+
+        HomeController.to.pageCountForHome.value++;
+      }
+      else{
+        HomeController.to.initPageForHome(-1);
+      }
+    }
+
+    else if(response['status']!=null&&!response['status']){
+      ServiceAPI.showAlert(errorMessageJson(response['message']));
+    }
+    return productList;
+  }
+
 }
