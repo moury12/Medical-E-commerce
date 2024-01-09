@@ -20,25 +20,35 @@ class AuthController extends GetxController {
   bool get isLoggedIn => getLocaldata('isLoggedIn')??false;
   String get getAuthToken => getLocaldata('authToken') ?? '';
   RxString otp = ''.obs;
+  RxString afterLoginRoute = HomePage.routeName.obs;
+  RxMap<dynamic, dynamic> afterLoginArg = {}.obs;
   Rx<bool> isSelected = RxBool(false);
   RxList<DistrictModel> disList = <DistrictModel>[].obs;
   RxList<SubDistrict> areaList = <SubDistrict>[].obs;
   Rx<String> selectedDistrict = ''.obs;
   Rx<String> selectedArea = ''.obs;
+  RxMap loginUserInfoLoad = {}.obs;
+  RxBool isLogInBack = false.obs;
+  bool get isFirstTime => storage.read('isFirstTime') ?? true;
+
   @override
   void onInit() {
+    if(isLoggedIn){
+      ServiceAPI.setAuthToken(getAuthToken);
+      Get.put<UserController>(UserController(),permanent: true);
+      Get.put<HomeController>(HomeController(),permanent: true);
+      getUserInfoFromLocal();
+    }
     getAreaData();
     globalLogger.d(isLoggedIn, "isLoggedIn");
-if(isLoggedIn){
-  ServiceAPI.setAuthToken(getAuthToken);
-  Get.put<UserController>(UserController(),permanent: true);
-  Get.put<HomeController>(HomeController(),permanent: true);
-  getUserInfoFromLocal();
-}
+
     super.onInit();
   }
+  void offIntroPage(){
+    storage.write('isFirstTime', false);
+  }
 getUserInfoFromLocal(){
-    final data =getLocaldata(activeUserLocaldata);
+    final data =getLocaldata(activeUserLocalKey);
 loginCredentials.value=data ?? {
   "phone": '',
   "password": '',
@@ -51,7 +61,7 @@ loginCredentials.value=data ?? {
   }
   void loginRequest(String emailOrPhone, String password, /*bool isRememberMe*/) async {
     registerPhone(emailOrPhone);
-    setLocaldata(activeUserLocaldata, {
+    setLocaldata(activeUserLocalKey, {
       "phone": emailOrPhone,
       "password": password,
     });
@@ -110,18 +120,31 @@ loginCredentials.value=data ?? {
       Get.toNamed(CreateNewPasswordPage.routeName);
     }
     else{
+      globalLogger.d(accessToken['token'],'rrttrete');
       afterLogin(accessToken['token']);
     }
     }
   }
 
   void afterLogin(String accessToken) {
-    setLocaldata('accessToken', accessToken);
+    setLocaldata('authToken', accessToken);
     ServiceAPI.setAuthToken(accessToken);
     setLocaldata('isLoggedIn', true);
     Get.put<UserController>(UserController(),permanent: true);
     Get.put<HomeController>(HomeController(),permanent: true);
-    Get.offAndToNamed(HomePage.routeName);
+  loginAfterRoute();
+  }
+  loginAfterRoute() {
+    // if (isLogInBack.value) {
+    //   Get.back();
+    // } else {
+    Get.offAndToNamed(afterLoginRoute.value, arguments: afterLoginArg);
+    // }
+  }
+  setAfterLogInRoute({String? routeName, dynamic arg, bool isBack = true}) {
+    afterLoginRoute(routeName ?? '');
+    afterLoginArg(arg);
+    isLogInBack(isBack);
   }
   Future<void> forgetpassword(String phone, [bool isResend= false]) async{
     registerPhone(phone);
@@ -144,6 +167,36 @@ loginCredentials.value=data ?? {
     if(isVerified){
       showSnackBar(msg: 'Verified successfuly');
       Get.offAndToNamed(LoginPage.routeName);
+    }
+  }
+  void _logoutCallFunc() {
+    Get.delete<UserController>(force: true);
+    // setLocalData(courseCartLocalKey, []);
+    Get.delete<HomeController>(force: true);
+    // HomeController.to.bottomNavBarType(BottomNavBarType.home);
+    setLocaldata('authToken', '');
+    ServiceAPI.delAuthToken('');
+    setLocaldata('isLoggedIn', false);
+    Get.offAllNamed('/');
+  }
+
+  Future<void> logout() async {
+    /*mh.showSnackBar(
+      msg: 'Logging Out ...',
+      // textColor: Colors.red,
+      *//*bgColor: Colors.red*//*
+    );*/
+    // _logoutCallFunc();
+
+    if (is401Call) {
+      is401Call = false;
+    }
+    globalLogger.d(getAuthToken);
+    final isLogoutWorked = await AuthService.logoutCall(forceLogout: () {
+      _logoutCallFunc();
+    });
+    if (isLogoutWorked) {
+      _logoutCallFunc();
     }
   }
 }

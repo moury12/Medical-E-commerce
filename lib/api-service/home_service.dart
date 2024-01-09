@@ -40,19 +40,32 @@ class HomeService{
     }
     return company;
   }
+  static Future<List<DistrictModel>> getCategories() async{
+    List<DistrictModel> categories=[];
+    final response= await ServiceAPI.genericCall(url: '${ServiceAPI
+        .apiUrl}categories', httpMethod: HttpMethod.get);
+    globalLogger.d(response, "Get Company Route");
+    if(response['status']!=null&&response['status']){
+      response['data'].forEach((com){categories.add(DistrictModel.fromJson
+        (com));});
+    }
+    else if(response['status']!=null&&!response['status']){
+      ServiceAPI.showAlert(errorMessageJson(response['message']));
+    }
+    return categories;
+  }
   static Future<List<ProductModel>> getProductList({String? key ,String?
   nextPageUrl}) async{
     List<ProductModel> productList=[];
     final com =HomeController.to.companyList.where((p0) => p0.userCheck=='1')
         .toList();
-    var url ='${ServiceAPI.apiUrl}products?${key!=null?'search=$key'
-        '&':''}pagination=20&category_id=${HomeController.to
+    var url ='${ServiceAPI.apiUrl}products?${key!=null?'search=$key&':''}pagination=20&category_id=${HomeController.to
         .activeCategoryIdHome}${com.isNotEmpty?'&company_id=${com.map((e) =>
     e.id).toList().toString().removeAllWhitespace}':''}&page=${nextPageUrl
         ??'1'}';
     final response= await ServiceAPI.genericCall(url: url, httpMethod:
     HttpMethod.get);
-    globalLogger.d(response, "Get Company Route");
+    globalLogger.d(response, "Get products ");
     if(response['status']!=null&&response['status']){
       response['data']['data'].forEach((product){productList.add(ProductModel
           .fromJson
@@ -66,8 +79,8 @@ class HomeService{
       }
     }
 
-    else if(response['status']!=null&&!response['status']){
-      ServiceAPI.showAlert(errorMessageJson(response['message']));
+    else {
+      ServiceAPI.showAlert(response['message']);
     }
     return productList;
   }
@@ -88,10 +101,10 @@ class HomeService{
         (product));});
       if(response['data']['next_page_url']!=null){
 
-        HomeController.to.pageCountForHome.value++;
+        HomeController.to.pageCountForSearch.value++;
       }
       else{
-        HomeController.to.initPageForHome(-1);
+        HomeController.to.initPageForSearch(-1);
       }
     }
 
@@ -104,22 +117,21 @@ class HomeService{
   nextPageUrl}) async{
     List<ProductModel> productList=[];
 
-    var url ='${ServiceAPI.apiUrl}products?pagination=20&category_id=${HomeController.to.flashCategoryIDHome}'
-        '&is_flash_sale=1&page=${nextPageUrl
+    var url ='${ServiceAPI.apiUrl}products?pagination=20&category_id=${HomeController.to.flashCategoryIDHome}&is_flash_sale=1&page=${nextPageUrl
         ??'1'}';
     final response= await ServiceAPI.genericCall(url: url, httpMethod:
     HttpMethod.get);
-    globalLogger.d(response, "Get Company Route");
+    globalLogger.d(response, "Get flash Route");
     if(response['status']!=null&&response['status']){
       response['data']['data'].forEach((product){productList.add(ProductModel
           .fromJson
         (product));});
       if(response['data']['next_page_url']!=null){
 
-        HomeController.to.pageCountForHome.value++;
+        HomeController.to.pageCountForFlash.value++;
       }
       else{
-        HomeController.to.initPageForHome(-1);
+        HomeController.to.initPageForFlash(-1);
       }
     }
 

@@ -110,5 +110,24 @@ return false;
   // s
 // tatic Future<bool> logOutCall({ required Function ()
   // })
+  static Future<bool> logoutCall({required Function() forceLogout}) async {
+    final response = await ServiceAPI.genericCall(
+        url: '${ServiceAPI.apiUrl}logout',
+        httpMethod: HttpMethod.get,
+        isLoadingEnable: false,
+        isErrorHandleButtonExists: true,
+        errorButtonLabel: 'Force Logout',
+        errorButtonPressed: forceLogout);
+    globalLogger.d(response, "Logout Route");
+
+    is401Call = true;
+
+    if (response['status'] != null && response['status']) {
+      return true;
+    } else if (response['status'] != null && !(response['status'] == 'ok')) {
+      ServiceAPI.showAlert(errorMessageJson(response['message']));
+    }
+    return false;
+  }
 
 }

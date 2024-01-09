@@ -6,4 +6,4 @@ void setLocaldata (String key, dynamic value){
 }dynamic getLocaldata (String key){
   storage.read(key);
 }
-const String activeUserLocaldata='login_credential_key';
+const String activeUserLocalKey='login_credential_key';
