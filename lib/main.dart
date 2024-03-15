@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:medi_source_apitest/DB/db_helper.dart';
 import 'package:medi_source_apitest/bindings/AuthBinding.dart';
 import 'package:medi_source_apitest/pages/registration_screen.dart';
 import 'package:medi_source_apitest/routes.dart';
@@ -8,10 +8,14 @@ import 'package:mh_core/services/api_service.dart';
 import 'package:mh_core/utils/global.dart';
 
 import 'pages/splash_screen.dart';
-
+final dbHelper=DbHelper();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await GetStorage.init();
+  try{
+await DbHelper.initDatabase();
+  }catch(e){
+globalLogger.d(e);
+  }
   ServiceAPI.domain('http://apitest.wiztecbd.com/');
   ServiceAPI.extraSlag('api/');
   navigatorKey = GlobalKey<NavigatorState>();
@@ -27,7 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'MediSource',
+      title: 'Medi Source',
       scaffoldMessengerKey: snackbarKey,
       navigatorKey: navigatorKey,
       theme: ThemeData(

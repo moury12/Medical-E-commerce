@@ -12,9 +12,10 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    globalLogger.d(AuthController.to.isLoggedIn,'status');
     Future.delayed(Duration(seconds: 3),(){
-      Get.offAndToNamed(AuthController.to.isLoggedIn?HomePage.routeName:LoginPage.routeName);
+      Get.offAndToNamed(AuthController.to.isLoggedIn.value?HomePage
+          .routeName:LoginPage
+          .routeName);
     });
     return Scaffold(
       body: Center(

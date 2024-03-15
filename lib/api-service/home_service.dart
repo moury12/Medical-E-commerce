@@ -29,11 +29,12 @@ class HomeService{
   static Future<List<Company>> getcompanyList() async{
     List<Company> company=[];
     final response= await ServiceAPI.genericCall(url: '${ServiceAPI
-        .apiUrl}company?paginate=1000', httpMethod: HttpMethod.get);
+        .apiUrl}company?paginate=50000', httpMethod: HttpMethod.get);
     globalLogger.d(response, "Get Company Route");
     if(response['status']!=null&&response['status']){
       response['data']['data'].forEach((com){company.add(Company.fromJson
         (com));});
+      globalLogger.d(response,'Company list');
     }
     else if(response['status']!=null&&!response['status']){
       ServiceAPI.showAlert(errorMessageJson(response['message']));
@@ -54,15 +55,17 @@ class HomeService{
     }
     return categories;
   }
-  static Future<List<ProductModel>> getProductList({String? key ,String?
-  nextPageUrl}) async{
+  static Future<List<ProductModel>> getProductList(/*{String? key ,String?
+  nextPageUrl}*/) async{
     List<ProductModel> productList=[];
-    final com =HomeController.to.companyList.where((p0) => p0.userCheck=='1')
-        .toList();
-    var url ='${ServiceAPI.apiUrl}products?${key!=null?'search=$key&':''}pagination=20&category_id=${HomeController.to
+    /*final com =HomeController.to.companyList.where((p0) => p0.userCheck=='1')
+        .toList();*/
+    /*var url ='${ServiceAPI.apiUrl}products?${key!=null?'search=$key&':''}pagination=20&category_id=${HomeController.to
         .activeCategoryIdHome}${com.isNotEmpty?'&company_id=${com.map((e) =>
     e.id).toList().toString().removeAllWhitespace}':''}&page=${nextPageUrl
-        ??'1'}';
+        ??'1'}';*/
+    var url ='${ServiceAPI.apiUrl}products/?search=500mg&pagination=1'
+        '&category_id=1';
     final response= await ServiceAPI.genericCall(url: url, httpMethod:
     HttpMethod.get);
     globalLogger.d(response, "Get products ");
@@ -70,13 +73,13 @@ class HomeService{
       response['data']['data'].forEach((product){productList.add(ProductModel
           .fromJson
         (product));});
-      if(response['data']['next_page_url']!=null){
+     /* if(response['data']['next_page_url']!=null){
 
         HomeController.to.pageCountForHome.value++;
       }
       else{
         HomeController.to.initPageForHome(-1);
-      }
+      }*/
     }
 
     else {

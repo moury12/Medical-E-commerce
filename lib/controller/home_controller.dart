@@ -49,7 +49,7 @@ class HomeController extends GetxController {
     sliderList.value = await HomeService.getSliderList();
   }
 Future<void> getProductData([bool initialCall =true]) async{
-    if(initialCall){
+   /* if(initialCall){
       homeProductLoading(true);
       HomeController.to.initPageForHome(0);
       HomeController.to.pageCountForHome(1);
@@ -64,7 +64,8 @@ Future<void> getProductData([bool initialCall =true]) async{
       productList.addAll(data);
       homeProductLoadMore(false);
 
-    }
+    }*/
+  productList.value=await HomeService.getProductList();
 
 }
 Future<void> getFlashProductData([bool initialCall =true]) async{

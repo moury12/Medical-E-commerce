@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:medi_source_apitest/DB/db_helper.dart';
 import 'package:medi_source_apitest/api-service/auth_service.dart';
 import 'package:medi_source_apitest/constant/enums.dart';
 import 'package:medi_source_apitest/controller/home_controller.dart';
 import 'package:medi_source_apitest/controller/user_controller.dart';
-import 'package:medi_source_apitest/global.dart';
+import 'package:medi_source_apitest/main.dart';
 import 'package:medi_source_apitest/models/district_model.dart';
 import 'package:medi_source_apitest/pages/create_new_password_page.dart';
 import 'package:medi_source_apitest/pages/home_page.dart';
@@ -17,10 +19,8 @@ class AuthController extends GetxController {
   static AuthController get to => Get.find();
   RxString registerPhone = ''.obs;
   RxMap loginCredentials = {}.obs;
-  bool get isLoggedIn => getLocaldata('isLoggedIn')??false;
-  String get getAuthToken => getLocaldata('authToken') ?? '';
   RxString otp = ''.obs;
-  RxString afterLoginRoute = HomePage.routeName.obs;
+  RxString afterLoginRoute = OtpVerificationPage.routeName.obs;
   RxMap<dynamic, dynamic> afterLoginArg = {}.obs;
   Rx<bool> isSelected = RxBool(false);
   RxList<DistrictModel> disList = <DistrictModel>[].obs;
@@ -28,32 +28,18 @@ class AuthController extends GetxController {
   Rx<String> selectedDistrict = ''.obs;
   Rx<String> selectedArea = ''.obs;
   RxMap loginUserInfoLoad = {}.obs;
+  RxBool isLoggedIn = false.obs;
   RxBool isLogInBack = false.obs;
-  bool get isFirstTime => storage.read('isFirstTime') ?? true;
-
+  String? token;
   @override
   void onInit() {
-    if(isLoggedIn){
-      ServiceAPI.setAuthToken(getAuthToken);
-      Get.put<UserController>(UserController(),permanent: true);
-      Get.put<HomeController>(HomeController(),permanent: true);
-      getUserInfoFromLocal();
-    }
+   
     getAreaData();
-    globalLogger.d(isLoggedIn, "isLoggedIn");
-
+getAccessToken();
     super.onInit();
   }
-  void offIntroPage(){
-    storage.write('isFirstTime', false);
-  }
-getUserInfoFromLocal(){
-    final data =getLocaldata(activeUserLocalKey);
-loginCredentials.value=data ?? {
-  "phone": '',
-  "password": '',
-};
-}
+
+
   Future<void> getAreaData() async {
     final data = await AuthService.getAreaData();
     disList.value = data[AddressType.district] as List<DistrictModel>;
@@ -61,10 +47,7 @@ loginCredentials.value=data ?? {
   }
   void loginRequest(String emailOrPhone, String password, /*bool isRememberMe*/) async {
     registerPhone(emailOrPhone);
-    setLocaldata(activeUserLocalKey, {
-      "phone": emailOrPhone,
-      "password": password,
-    });
+
     loginCredentials.value = {
       "phone": emailOrPhone,
       "password": password,
@@ -72,16 +55,14 @@ loginCredentials.value=data ?? {
     // getProgressDialog();
     globalLogger.d("Login Function Call");
 
-    final accessToken = await AuthService.loginCall({
+    final data = await AuthService.loginCall({
       "phone": emailOrPhone,
       "password": password,
     });
-    globalLogger.d(accessToken, 'accessToken');
-    if (accessToken['token'] != null && accessToken['token'].isNotEmpty) {
-      // setLocalData(loginByKey, '0');
-      // loginUserInfoLoad.value = accessToken['user'];
-      // afterLogin(accessToken['tokenResult']);
-      Get.toNamed(OtpVerificationPage.routeName);
+    globalLogger.d(data, 'data');
+    if (data['token'] != null && data['token'].isNotEmpty) {
+      var token =data['token'];
+      afterLogin(token);     /* Get.toNamed(OtpVerificationPage.routeName);*/
     }
   }
 
@@ -120,16 +101,16 @@ loginCredentials.value=data ?? {
       Get.toNamed(CreateNewPasswordPage.routeName);
     }
     else{
-      globalLogger.d(accessToken['token'],'rrttrete');
-      afterLogin(accessToken['token']);
+      /*globalLogger.d(accessToken['token'],'rrttrete');
+      afterLogin(accessToken['token']);*/
     }
     }
   }
 
   void afterLogin(String accessToken) {
-    setLocaldata('authToken', accessToken);
+    DbHelper.insertLoginData(accessToken);
+    isLoggedIn.value =true;
     ServiceAPI.setAuthToken(accessToken);
-    setLocaldata('isLoggedIn', true);
     Get.put<UserController>(UserController(),permanent: true);
     Get.put<HomeController>(HomeController(),permanent: true);
   loginAfterRoute();
@@ -169,14 +150,24 @@ loginCredentials.value=data ?? {
       Get.offAndToNamed(LoginPage.routeName);
     }
   }
+  void getAccessToken() async {
+    token = await DbHelper.getAccessToken();
+    if (token != null) {
+      ServiceAPI.setAuthToken(token!);
+
+      isLoggedIn.value = true;
+      Get.put<HomeController>(HomeController(), permanent: true);
+      globalLogger.d(token,'Access Token');
+    } else {
+      isLoggedIn.value = false;
+    }
+  }
   void _logoutCallFunc() {
     Get.delete<UserController>(force: true);
     // setLocalData(courseCartLocalKey, []);
     Get.delete<HomeController>(force: true);
     // HomeController.to.bottomNavBarType(BottomNavBarType.home);
-    setLocaldata('authToken', '');
     ServiceAPI.delAuthToken('');
-    setLocaldata('isLoggedIn', false);
     Get.offAllNamed('/');
   }
 
@@ -191,7 +182,6 @@ loginCredentials.value=data ?? {
     if (is401Call) {
       is401Call = false;
     }
-    globalLogger.d(getAuthToken);
     final isLogoutWorked = await AuthService.logoutCall(forceLogout: () {
       _logoutCallFunc();
     });
