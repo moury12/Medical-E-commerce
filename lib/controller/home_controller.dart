@@ -10,6 +10,7 @@ class HomeController extends GetxController {
     getSliderData();
     getCategories();
     getProductData();
+    getCompanies();
     // getFlashProductData();
     super.onInit();
   }
@@ -21,7 +22,7 @@ class HomeController extends GetxController {
   RxList<ProductModel> productList = <ProductModel>[].obs;
   RxList<ProductModel> flashProductList = <ProductModel>[].obs;
   RxList<ProductModel> searchProductList = <ProductModel>[].obs;
-  RxString activeCategoryIdHome = '1'.obs;
+  RxInt selectedCategoryIdHome = 1.obs;
   RxInt initPageForHome = 1.obs;
   RxInt initPageForFlash = 1.obs;
   RxInt initPageForSearch = 1.obs;
@@ -49,23 +50,34 @@ class HomeController extends GetxController {
     sliderList.value = await HomeService.getSliderList();
   }
 Future<void> getProductData([bool initialCall =true]) async{
-   /* if(initialCall){
+  final com = companyList
+      .where((p0) => p0.userCheck == true)
+      .toList();
+    if(initialCall){
       homeProductLoading(true);
-      HomeController.to.initPageForHome(0);
-      HomeController.to.pageCountForHome(1);
-      productList.value= await HomeService.getProductList(key: searchKey.value
-          .isNotEmpty?searchKey.value:null);
+    initPageForHome(0);
+    pageCountForHome(1);
+      productList.value=await HomeService.getProductList(
+          initPageForHome: initPageForHome.value,
+          nextPageUrl: pageCountForHome.value,
+          activeCategory:
+      selectedCategoryIdHome.value.toString(),company: com.map((e) =>
+      e.id).toList());
       homeProductLoading(false);
     }else{
       homeProductLoadMore(true);
-      final data = await HomeService.getProductList(key: searchKey.value
-          .isNotEmpty?searchKey.value:null,nextPageUrl: pageCountForHome
-          .value.toString());
+      final data = await HomeService.getProductList(
+          initPageForHome: initPageForHome.value,
+          nextPageUrl: pageCountForHome.value,
+          activeCategory:
+      selectedCategoryIdHome.value.toString(),company: com.map((e) =>
+      e.id).toList());
       productList.addAll(data);
       homeProductLoadMore(false);
 
-    }*/
-  productList.value=await HomeService.getProductList();
+    }
+
+
 
 }
 Future<void> getFlashProductData([bool initialCall =true]) async{

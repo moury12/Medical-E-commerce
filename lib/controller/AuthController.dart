@@ -154,7 +154,7 @@ getAccessToken();
     token = await DbHelper.getAccessToken();
     if (token != null) {
       ServiceAPI.setAuthToken(token!);
-
+globalLogger.d(ServiceAPI.getToken,'Auth token');
       isLoggedIn.value = true;
       Get.put<HomeController>(HomeController(), permanent: true);
       globalLogger.d(token,'Access Token');
