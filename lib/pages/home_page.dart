@@ -1,8 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/constant/global.dart';
 import 'package:medi_source_apitest/controller/home_controller.dart';
+import 'package:medi_source_apitest/pages/flash_product_page.dart';
 import 'package:medi_source_apitest/pages/search_page.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
 import 'package:mh_core/widgets/network_image/network_image.dart';
@@ -23,6 +23,13 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     scrollController.addListener(_scrolListener);
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -48,7 +55,7 @@ class _HomePageState extends State<HomePage> {
           ),
           Expanded(
               child: ListView.builder(
-            padding: EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
             itemCount: searchController.text.isNotEmpty
                 ? HomeController.to.companyList
                     .where((p0) =>
@@ -74,45 +81,46 @@ class _HomePageState extends State<HomePage> {
               );
             },
           )),
-          Container(
-            child: Row(
-              children: [
-                Expanded(
-                  child: CustomButton(
-                    label: 'Apply',
-                    marginVertical: 8,
-                    onPressed: () {
-                      Get.back();
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  label: 'Apply',
+                  marginVertical: 8,
+                  onPressed: () {
+                    Get.back();
+                    HomeController.to.getProductData();
+                  },
+                ),
+              ),
+              Expanded(
+                child: CustomButton(
+                  label: 'Reset',
+                  marginVertical: 8,
+                  onPressed: () {
+                    for (int i = 0;
+                        i < HomeController.to.companyList.length;
+                        i++) {
+                      HomeController.to.companyList[i].userCheck = false;
+                      setState(() {});
                       HomeController.to.getProductData();
-                    },
-                  ),
+                    }
+                  },
                 ),
-                Expanded(
-                  child: CustomButton(
-                    label: 'Reset',
-                    marginVertical: 8,
-                    onPressed: () {
-                      for (int i = 0;
-                          i < HomeController.to.companyList.length;
-                          i++) {
-                        HomeController.to.companyList[i].userCheck = false;
-                        setState(() {});
-                        HomeController.to.getProductData();
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           )
         ],
       )),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: [IconButton(onPressed: () {
+          Get.toNamed(ProductFlashScreen.routeName);
+        }, icon: Icon(Icons.flash_auto))],
         leading: Builder(builder: (context) {
           return IconButton(
-            icon: Icon(Icons.menu),
+            icon: const Icon(Icons.menu),
             onPressed: () {
               Scaffold.of(context).openDrawer();
             },
@@ -140,8 +148,9 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 Get.toNamed(SearchScreen.routeName);
               },
-              child: CustomTextField(
+              child: const CustomTextField(
                 hintText: 'Search Product',
+                isEnable: false,
               ),
             ),
             Obx(() {
@@ -171,17 +180,18 @@ class _HomePageState extends State<HomePage> {
                 ],
               );
             }),
-            Obx(() {if(HomeController.to.allProductLoading.value){
-              return CircularProgressIndicator();
-            }
-            if(HomeController.to.productList.isEmpty){
-              return Text('there is no product');
-            }
+            Obx(() {
+              if (HomeController.to.allProductLoading.value) {
+                return const CircularProgressIndicator();
+              }
+              if (HomeController.to.productList.isEmpty) {
+                return const Text('there is no product');
+              }
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
                 itemCount: HomeController.to.productList.value.length,
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 200,
                 ),
                 itemBuilder: (context, index) {
@@ -193,10 +203,10 @@ class _HomePageState extends State<HomePage> {
               );
             }),
             Obx(() => HomeController.to.homeProductLoadMore.value
-                ? Center(
+                ? const Center(
                     child: CircularProgressIndicator(),
                   )
-                : SizedBox.shrink())
+                : const SizedBox.shrink())
             /* Obx(() => HomeController.to.homeProductLoading.value?CircularProgressIndicator():HomeController.to.productList.isEmpty?Center(child: Text('there is no product'),):GridView.builder( itemCount:HomeController.to.productList.length ,
             shrinkWrap: true,
             physics: const ScrollPhysics(),

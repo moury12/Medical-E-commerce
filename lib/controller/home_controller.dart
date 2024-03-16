@@ -11,7 +11,7 @@ class HomeController extends GetxController {
     getCategories();
     getProductData();
     getCompanies();
-    // getFlashProductData();
+     getFlashProductData();
     super.onInit();
   }
 
@@ -23,6 +23,7 @@ class HomeController extends GetxController {
   RxList<ProductModel> flashProductList = <ProductModel>[].obs;
   RxList<ProductModel> searchProductList = <ProductModel>[].obs;
   RxInt selectedCategoryIdHome = 1.obs;
+  RxInt selectedCategoryIdFlash = 1.obs;
   RxInt initPageForHome = 1.obs;
   RxInt initPageForFlash = 1.obs;
   RxInt initPageForSearch = 1.obs;
@@ -80,37 +81,61 @@ Future<void> getProductData([bool initialCall =true]) async{
 
 
 }
-Future<void> getFlashProductData([bool initialCall =true]) async{
+Future<void> getSearchProductData(String? key,[bool initialCall =true]) async{
+
+    if(initialCall){
+      searchProductLoading(true);
+    initPageForSearch(0);
+    pageCountForSearch(1);
+      searchProductList.value=await HomeService.getProductSearchList(
+        key: key,
+          initPage: initPageForSearch.value,
+          nextPageUrl: pageCountForSearch.value,
+         );
+      searchProductLoading(false);
+    }else{
+      searchProductLoadMore(true);
+      final data = await HomeService.getProductSearchList(
+          key: key,
+          initPage: initPageForSearch.value,
+          nextPageUrl: pageCountForSearch.value,
+        );
+      searchProductList.addAll(data);
+      searchProductLoadMore(false);
+
+    }
+
+
+
+}
+  Future<void> getFlashProductData([bool initialCall =true]) async{
+
     if(initialCall){
       flashProductLoading(true);
-      HomeController.to.initPageForFlash(0);
-      HomeController.to.pageCountForFlash(1);
-      flashProductList.value= await HomeService.getFlashProductList();
+      initPageForFlash(0);
+      pageCountForFlash(1);
+      flashProductList.value=await HomeService.getFlashProductList(
+          initPage: initPageForFlash.value,
+          nextPageUrl: pageCountForFlash.value,
+          activeCategory:
+          selectedCategoryIdFlash.value.toString());
       flashProductLoading(false);
     }else{
       flashProductLoadMore(true);
-      final data = await HomeService.getFlashProductList(nextPageUrl: pageCountForFlash
-          .value.toString());
+      final data = await HomeService.getFlashProductList(
+          initPage: initPageForFlash.value,
+          nextPageUrl: pageCountForFlash.value,
+          activeCategory:
+          selectedCategoryIdFlash.value.toString(),);
       flashProductList.addAll(data);
       flashProductLoadMore(false);
 
     }
 
-}
-Future<void> getSearchProductData(String key, [bool initialcall =true])async{
-    if(initialcall){
-      searchProductLoading(true);
-      HomeController.to.initPageForSearch(0);
-      HomeController.to.pageCountForSearch(1);
-      searchProductList.value= await HomeService.getProductSearchList(key: key);
-      searchProductLoading(false);
-    }else{
-      searchProductLoadMore(true);
-      final data = await HomeService.getProductSearchList(nextPageUrl: pageCountForSearch.value.toString());
-      searchProductList.addAll(data);
-      searchProductLoadMore(false);
-    }
-}
+
+
+  }
+
 Future<void> getCompanies()async{
     companyList.value=await HomeService.getcompanyList();
 
