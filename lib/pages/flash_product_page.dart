@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/controller/home_controller.dart';
+import 'package:medi_source_apitest/pages/home_page.dart';
 import 'package:mh_core/widgets/network_image/network_image.dart';
 
 class ProductFlashScreen extends StatefulWidget {
@@ -84,9 +85,7 @@ class _ProductFlashScreenState extends State<ProductFlashScreen> {
                 ),
                 itemBuilder: (context, index) {
                   final product = HomeController.to.flashProductList.value[index];
-                  return CustomNetworkImage(
-                    networkImagePath: product.image ?? '',
-                  );
+                  return ProductCardWidget(product: product);
                 },
               );
             }),

@@ -1,7 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/constant/global.dart';
 import 'package:medi_source_apitest/controller/home_controller.dart';
+import 'package:medi_source_apitest/models/cart_model.dart';
+import 'package:medi_source_apitest/models/product_model.dart';
+import 'package:medi_source_apitest/pages/cart_page.dart';
 import 'package:medi_source_apitest/pages/flash_product_page.dart';
 import 'package:medi_source_apitest/pages/search_page.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
@@ -115,9 +119,15 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        actions: [IconButton(onPressed: () {
-          Get.toNamed(ProductFlashScreen.routeName);
-        }, icon: Icon(Icons.flash_auto))],
+        actions: [
+          IconButton(onPressed: () => Get.toNamed(CartScreen.routeName),
+              icon: Icon(CupertinoIcons.bag)),
+          IconButton(
+              onPressed: () {
+                Get.toNamed(ProductFlashScreen.routeName);
+              },
+              icon: const Icon(Icons.flash_auto))
+        ],
         leading: Builder(builder: (context) {
           return IconButton(
             icon: const Icon(Icons.menu),
@@ -190,15 +200,13 @@ class _HomePageState extends State<HomePage> {
               return GridView.builder(
                 shrinkWrap: true,
                 physics: const ScrollPhysics(),
-                itemCount: HomeController.to.productList.value.length,
+                itemCount: HomeController.to.productList.length,
                 gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 200,
+                  maxCrossAxisExtent: 300,
                 ),
                 itemBuilder: (context, index) {
-                  final product = HomeController.to.productList.value[index];
-                  return CustomNetworkImage(
-                    networkImagePath: product.image ?? '',
-                  );
+                  final product = HomeController.to.productList[index];
+                  return ProductCardWidget(product: product);
                 },
               );
             }),
@@ -231,5 +239,64 @@ class _HomePageState extends State<HomePage> {
         }
       }
     }
+  }
+}
+
+class ProductCardWidget extends StatelessWidget {
+  const ProductCardWidget({
+    super.key,
+    required this.product,
+  });
+
+  final ProductModel product;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CustomNetworkImage(
+          networkImagePath: product.image ?? '',
+          height: 100,
+        ),
+        Obx(() {
+          final cartItem = HomeController.to.cartList.firstWhere(
+            (e) => e.product.id == product.id,
+            orElse: () => CartModel(id: -1, product: product, quantity: 0),
+          );
+          return cartItem.id == -1
+              ? CustomButton(
+            marginVertical: 0,
+                  label: 'Add '
+                      'to Cart',
+                  onPressed: () {
+                    HomeController.to.addToCart(product, 1);
+                  },
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    IconButton(
+                        onPressed: () {
+                          HomeController.to
+                              .updateCart(cartItem.id, cartItem.quantity + 1);
+                        },
+                        icon: const Icon(CupertinoIcons.plus)),
+                    Text(cartItem.quantity.toString()),
+                    IconButton(
+                        onPressed: () {
+                          if (cartItem.quantity > 1) {
+                            HomeController.to
+                                .updateCart(cartItem.id, cartItem.quantity - 1);
+                          } else {
+                            HomeController.to.removeFromCart(cartItem.id);
+                          }
+                        },
+                        icon: const Icon(CupertinoIcons.minus)),
+                  ],
+                );
+        })
+      ],
+    );
   }
 }

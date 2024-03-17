@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/controller/home_controller.dart';
+import 'package:medi_source_apitest/pages/home_page.dart';
 import 'package:mh_core/widgets/network_image/network_image.dart';
 import 'package:mh_core/widgets/textfield/custom_textfield.dart';
 
@@ -69,9 +70,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             itemBuilder: (context, index) {
                               final product =
                                   HomeController.to.searchProductList.value[index];
-                              return CustomNetworkImage(
-                                networkImagePath: product.image ?? '',
-                              );
+                              return ProductCardWidget(product: product);
                             },
                           );
                         }),

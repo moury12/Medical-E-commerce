@@ -1,7 +1,14 @@
+import 'dart:convert';
+
 import 'package:get/get.dart';
+import 'package:medi_source_apitest/DB/db_helper.dart';
 import 'package:medi_source_apitest/api-service/home_service.dart';
+import 'package:medi_source_apitest/main.dart';
+import 'package:medi_source_apitest/models/cart_model.dart';
+import 'package:medi_source_apitest/models/cart_model.dart';
 import 'package:medi_source_apitest/models/district_model.dart';
 import 'package:medi_source_apitest/models/product_model.dart';
+import 'package:mh_core/utils/global.dart';
 
 class HomeController extends GetxController {
   @override
@@ -11,7 +18,8 @@ class HomeController extends GetxController {
     getCategories();
     getProductData();
     getCompanies();
-     getFlashProductData();
+    getFlashProductData();
+    getCartData();
     super.onInit();
   }
 
@@ -22,6 +30,7 @@ class HomeController extends GetxController {
   RxList<ProductModel> productList = <ProductModel>[].obs;
   RxList<ProductModel> flashProductList = <ProductModel>[].obs;
   RxList<ProductModel> searchProductList = <ProductModel>[].obs;
+  final cartList = <CartModel>[].obs;
   RxInt selectedCategoryIdHome = 1.obs;
   RxInt selectedCategoryIdFlash = 1.obs;
   RxInt initPageForHome = 1.obs;
@@ -39,7 +48,7 @@ class HomeController extends GetxController {
   final RxBool homeProductLoading = false.obs;
   final RxBool flashProductLoading = false.obs;
   final RxBool searchProductLoading = false.obs;
-  Future<void> getHomePageAllLoad() async{
+  Future<void> getHomePageAllLoad() async {
     allProductLoading(true);
     getSliderData();
     getProductData();
@@ -47,100 +56,111 @@ class HomeController extends GetxController {
     getCategories();
     allProductLoading(false);
   }
+
   Future<void> getSliderData() async {
     sliderList.value = await HomeService.getSliderList();
   }
-Future<void> getProductData([bool initialCall =true]) async{
-  final com = companyList
-      .where((p0) => p0.userCheck == true)
-      .toList();
-    if(initialCall){
+
+  Future<void> getProductData([bool initialCall = true]) async {
+    final com = companyList.where((p0) => p0.userCheck == true).toList();
+    if (initialCall) {
       homeProductLoading(true);
-    initPageForHome(0);
-    pageCountForHome(1);
-      productList.value=await HomeService.getProductList(
+      initPageForHome(0);
+      pageCountForHome(1);
+      productList.value = await HomeService.getProductList(
           initPageForHome: initPageForHome.value,
           nextPageUrl: pageCountForHome.value,
-          activeCategory:
-      selectedCategoryIdHome.value.toString(),company: com.map((e) =>
-      e.id).toList());
+          activeCategory: selectedCategoryIdHome.value.toString(),
+          company: com.map((e) => e.id).toList());
       homeProductLoading(false);
-    }else{
+    } else {
       homeProductLoadMore(true);
       final data = await HomeService.getProductList(
           initPageForHome: initPageForHome.value,
           nextPageUrl: pageCountForHome.value,
-          activeCategory:
-      selectedCategoryIdHome.value.toString(),company: com.map((e) =>
-      e.id).toList());
+          activeCategory: selectedCategoryIdHome.value.toString(),
+          company: com.map((e) => e.id).toList());
       productList.addAll(data);
       homeProductLoadMore(false);
-
     }
+  }
 
-
-
-}
-Future<void> getSearchProductData(String? key,[bool initialCall =true]) async{
-
-    if(initialCall){
+  Future<void> getSearchProductData(String? key,
+      [bool initialCall = true]) async {
+    if (initialCall) {
       searchProductLoading(true);
-    initPageForSearch(0);
-    pageCountForSearch(1);
-      searchProductList.value=await HomeService.getProductSearchList(
+      initPageForSearch(0);
+      pageCountForSearch(1);
+      searchProductList.value = await HomeService.getProductSearchList(
         key: key,
-          initPage: initPageForSearch.value,
-          nextPageUrl: pageCountForSearch.value,
-         );
+        initPage: initPageForSearch.value,
+        nextPageUrl: pageCountForSearch.value,
+      );
       searchProductLoading(false);
-    }else{
+    } else {
       searchProductLoadMore(true);
       final data = await HomeService.getProductSearchList(
-          key: key,
-          initPage: initPageForSearch.value,
-          nextPageUrl: pageCountForSearch.value,
-        );
+        key: key,
+        initPage: initPageForSearch.value,
+        nextPageUrl: pageCountForSearch.value,
+      );
       searchProductList.addAll(data);
       searchProductLoadMore(false);
-
     }
+  }
 
-
-
-}
-  Future<void> getFlashProductData([bool initialCall =true]) async{
-
-    if(initialCall){
+  Future<void> getFlashProductData([bool initialCall = true]) async {
+    if (initialCall) {
       flashProductLoading(true);
       initPageForFlash(0);
       pageCountForFlash(1);
-      flashProductList.value=await HomeService.getFlashProductList(
+      flashProductList.value = await HomeService.getFlashProductList(
           initPage: initPageForFlash.value,
           nextPageUrl: pageCountForFlash.value,
-          activeCategory:
-          selectedCategoryIdFlash.value.toString());
+          activeCategory: selectedCategoryIdFlash.value.toString());
       flashProductLoading(false);
-    }else{
+    } else {
       flashProductLoadMore(true);
       final data = await HomeService.getFlashProductList(
-          initPage: initPageForFlash.value,
-          nextPageUrl: pageCountForFlash.value,
-          activeCategory:
-          selectedCategoryIdFlash.value.toString(),);
+        initPage: initPageForFlash.value,
+        nextPageUrl: pageCountForFlash.value,
+        activeCategory: selectedCategoryIdFlash.value.toString(),
+      );
       flashProductList.addAll(data);
       flashProductLoadMore(false);
-
     }
-
-
-
   }
 
-Future<void> getCompanies()async{
-    companyList.value=await HomeService.getcompanyList();
+  Future<void> getCompanies() async {
+    companyList.value = await HomeService.getcompanyList();
+  }
 
-}Future<void> getCategories()async{
-    categoryList.value=await HomeService.getCategories();
-
+  Future<void> getCategories() async {
+    categoryList.value = await HomeService.getCategories();
+  }
+  ///Cart operation
+  void getCartData() async {
+    final cartData = await DbHelper.fetchCart();
+    cartList.assignAll(cartData.map((e) {
+      // Check if 'product_data' is a String, and decode it if necessary
+      final dynamic productData = e['product_data'];
+      final productJson = productData is String ? jsonDecode(productData) : productData;
+      return CartModel.fromJson({
+        'id': e['id'],
+        'product_data': productJson,
+        'quantity': e['quantity'],
+      });
+    }));
+    globalLogger.d(cartData, 'cart');
+  }
+void addToCart(ProductModel product, int quantity) async{
+    await DbHelper.addToCart(product, quantity);
+    getCartData();
+}void removeFromCart( int id) async{
+    await DbHelper.removeFromCart(id);
+    getCartData();
+}void updateCart(int id, int newQuantity) async{
+    await DbHelper.updateCartQuantity(id, newQuantity);
+    getCartData();
 }
 }
