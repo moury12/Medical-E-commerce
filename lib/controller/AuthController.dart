@@ -157,6 +157,7 @@ getAccessToken();
 globalLogger.d(ServiceAPI.getToken,'Auth token');
       isLoggedIn.value = true;
       Get.put<HomeController>(HomeController(), permanent: true);
+      Get.put<UserController>(UserController(), permanent: true);
       globalLogger.d(token,'Access Token');
     } else {
       isLoggedIn.value = false;
