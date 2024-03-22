@@ -12,6 +12,7 @@ import 'package:medi_source_apitest/pages/create_new_password_page.dart';
 import 'package:medi_source_apitest/pages/home_page.dart';
 import 'package:medi_source_apitest/pages/login_page.dart';
 import 'package:medi_source_apitest/pages/otp_verification_page.dart';
+import 'package:medi_source_apitest/pages/splash_screen.dart';
 import 'package:mh_core/services/api_service.dart';
 import 'package:mh_core/utils/global.dart';
 
@@ -20,7 +21,7 @@ class AuthController extends GetxController {
   RxString registerPhone = ''.obs;
   RxMap loginCredentials = {}.obs;
   RxString otp = ''.obs;
-  RxString afterLoginRoute = OtpVerificationPage.routeName.obs;
+  RxString afterLoginRoute = SplashScreen.routeName.obs;
   RxMap<dynamic, dynamic> afterLoginArg = {}.obs;
   Rx<bool> isSelected = RxBool(false);
   RxList<DistrictModel> disList = <DistrictModel>[].obs;
@@ -62,7 +63,7 @@ getAccessToken();
     globalLogger.d(data, 'data');
     if (data['token'] != null && data['token'].isNotEmpty) {
       var token =data['token'];
-      afterLogin(token);     /* Get.toNamed(OtpVerificationPage.routeName);*/
+      /*afterLogin(token);  */    Get.toNamed(OtpVerificationPage.routeName);
     }
   }
 
@@ -101,8 +102,8 @@ getAccessToken();
       Get.toNamed(CreateNewPasswordPage.routeName);
     }
     else{
-      /*globalLogger.d(accessToken['token'],'rrttrete');
-      afterLogin(accessToken['token']);*/
+      globalLogger.d(accessToken['token'],'rrttrete');
+      afterLogin(accessToken['token']);
     }
     }
   }
@@ -163,12 +164,12 @@ globalLogger.d(ServiceAPI.getToken,'Auth token');
       isLoggedIn.value = false;
     }
   }
-  void _logoutCallFunc() {
+  void _logoutCallFunc() async{
     Get.delete<UserController>(force: true);
-    // setLocalData(courseCartLocalKey, []);
     Get.delete<HomeController>(force: true);
-    // HomeController.to.bottomNavBarType(BottomNavBarType.home);
     ServiceAPI.delAuthToken('');
+    isLoggedIn.value=false;
+    await DbHelper.deleteAccessToken();
     Get.offAllNamed('/');
   }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:medi_source_apitest/controller/AuthController.dart';
 import 'package:medi_source_apitest/controller/user_controller.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -8,7 +9,13 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        actions: [
+          IconButton(onPressed: () {
+            AuthController.to.logout();
+          }, icon: Icon(Icons.logout))
+        ],
+      ),
       body: Column(
         children: [
          Text(UserController.to.userInfo.value.name??'') ,
