@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/DB/db_helper.dart';
 import 'package:medi_source_apitest/api-service/home_service.dart';
@@ -7,6 +8,8 @@ import 'package:medi_source_apitest/main.dart';
 import 'package:medi_source_apitest/models/cart_model.dart';
 import 'package:medi_source_apitest/models/cart_model.dart';
 import 'package:medi_source_apitest/models/district_model.dart';
+import 'package:medi_source_apitest/models/order_model.dart';
+import 'package:medi_source_apitest/models/order_model.dart';
 import 'package:medi_source_apitest/models/product_model.dart';
 import 'package:mh_core/utils/global.dart';
 
@@ -20,34 +23,49 @@ class HomeController extends GetxController {
     getCompanies();
     getFlashProductData();
     getCartData();
+    getOrderList();
+    scrollForOrder.addListener(orderScrollListener);
     super.onInit();
   }
 
   static HomeController get to => Get.find();
+  ScrollController scrollForOrder =ScrollController();
   RxList<SliderModel> sliderList = <SliderModel>[].obs;
   RxList<Company> companyList = <Company>[].obs;
   RxList<DistrictModel> categoryList = <DistrictModel>[].obs;
   RxList<ProductModel> productList = <ProductModel>[].obs;
   RxList<ProductModel> flashProductList = <ProductModel>[].obs;
   RxList<ProductModel> searchProductList = <ProductModel>[].obs;
-  final cartList = <CartModel>[].obs;
+  RxList<OrderModel> orderList = <OrderModel>[].obs;
+  RxList<CartModel> cartList = <CartModel>[].obs;
+ /* Rx<double> subtotal =cartList.value.map((e) => double.parse(e.product
+      .price??'0')*int
+      .parse(e.quantity.toString())).toList().reduce((value, element) =>
+  value + element).obs;
+  Rx<double> discount =cartList.value.map((e) => double.parse(e.product
+      .discountPrice??'0')*e.quantity
+  ).toList().reduce((value, element) => value + element).obs;*/
   RxInt selectedCategoryIdHome = 1.obs;
   RxInt selectedCategoryIdFlash = 1.obs;
   RxInt initPageForHome = 1.obs;
   RxInt initPageForFlash = 1.obs;
   RxInt initPageForSearch = 1.obs;
+  RxInt initPageForOrder = 1.obs;
   final RxString searchKey = ''.obs;
   RxInt pageCountForHome = 1.obs;
   RxInt pageCountForFlash = 1.obs;
   RxInt pageCountForSearch = 1.obs;
+  RxInt pageCountForOrder = 1.obs;
   RxString flashCategoryIDHome = '1'.obs;
   final RxBool homeProductLoadMore = false.obs;
   final RxBool searchProductLoadMore = false.obs;
   final RxBool flashProductLoadMore = false.obs;
+  final RxBool orderProductLoadMore = false.obs;
   final RxBool allProductLoading = false.obs;
   final RxBool homeProductLoading = false.obs;
   final RxBool flashProductLoading = false.obs;
   final RxBool searchProductLoading = false.obs;
+  final RxBool orderProductLoading = false.obs;
   Future<void> getHomePageAllLoad() async {
     allProductLoading(true);
     getSliderData();
@@ -131,6 +149,24 @@ class HomeController extends GetxController {
     }
   }
 
+  Future<void> getOrderList([bool initialCall = true]) async {
+    if (initialCall) {
+      orderProductLoading(true);
+      initPageForOrder(0);
+      pageCountForOrder(1);
+      orderList.value =
+          await HomeService.getOrderData(pageCountForOrder.value.toString());
+      orderProductLoading(false);
+    }
+    else{
+      orderProductLoadMore(true);
+      orderList.value =
+      await HomeService.getOrderData(pageCountForOrder.value.toString());
+      orderProductLoadMore(false);
+
+    }
+  }
+
   Future<void> getCompanies() async {
     companyList.value = await HomeService.getcompanyList();
   }
@@ -138,13 +174,15 @@ class HomeController extends GetxController {
   Future<void> getCategories() async {
     categoryList.value = await HomeService.getCategories();
   }
+
   ///Cart operation
   void getCartData() async {
     final cartData = await DbHelper.fetchCart();
     cartList.assignAll(cartData.map((e) {
       // Check if 'product_data' is a String, and decode it if necessary
       final dynamic productData = e['product_data'];
-      final productJson = productData is String ? jsonDecode(productData) : productData;
+      final productJson =
+          productData is String ? jsonDecode(productData) : productData;
       return CartModel.fromJson({
         'id': e['id'],
         'product_data': productJson,
@@ -153,14 +191,45 @@ class HomeController extends GetxController {
     }));
     globalLogger.d(cartData, 'cart');
   }
-void addToCart(ProductModel product, int quantity) async{
+
+  void addToCart(ProductModel product, int quantity) async {
     await DbHelper.addToCart(product, quantity);
     getCartData();
-}void removeFromCart( int id) async{
+  }
+
+  void removeFromCart(int id) async {
     await DbHelper.removeFromCart(id);
     getCartData();
-}void updateCart(int id, int newQuantity) async{
+  }
+
+  void updateCart(int id, int newQuantity) async {
     await DbHelper.updateCartQuantity(id, newQuantity);
     getCartData();
-}
+  }
+
+  void deleteCartList() async {
+    await DbHelper.deleteCartData();
+    cartList.clear();
+  }
+
+  Future<void> checkoutCall(dynamic body) async {
+    final isSuccess = await HomeService.checkoutCall(body);
+    if (isSuccess) {
+      showSnackBar(msg: 'Order placed successfully');
+      deleteCartList();
+      await getOrderList();
+    } else {
+      showSnackBar(msg: 'Order can\'t placed successfully');
+    }
+  }
+
+  Future<void> orderScrollListener() async {
+    if(scrollForOrder.position.pixels==scrollForOrder.position.maxScrollExtent){
+      if(initPageForOrder.value!=-1){
+        if(!orderProductLoadMore.value){
+          await getOrderList(false);
+        }
+      }
+    }
+  }
 }

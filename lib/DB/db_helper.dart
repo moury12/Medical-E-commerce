@@ -88,8 +88,19 @@ class DbHelper {
     }
     return null;
   }
+
   static Future<List<Map<String, dynamic>>> fetchCart() async {
     final db = await database;
     return db.query(cartTableName);
+  }
+
+  static Future<void> deleteCartData() async {
+    final db = await database;
+    await db.delete(cartTableName);
+  }
+
+  static Future<void> deleteAccessToken() async {
+    final db = await database;
+    await db.delete(tableName);
   }
 }

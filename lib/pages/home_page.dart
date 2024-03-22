@@ -7,6 +7,7 @@ import 'package:medi_source_apitest/models/cart_model.dart';
 import 'package:medi_source_apitest/models/product_model.dart';
 import 'package:medi_source_apitest/pages/cart_page.dart';
 import 'package:medi_source_apitest/pages/flash_product_page.dart';
+import 'package:medi_source_apitest/pages/order_list_page.dart';
 import 'package:medi_source_apitest/pages/profile_page.dart';
 import 'package:medi_source_apitest/pages/search_page.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
@@ -121,10 +122,12 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         actions: [
-          IconButton(onPressed: () => Get.toNamed(ProfileScreen.routeName),
+          IconButton(onPressed: () => Get.toNamed(OrderListScreen.routeName),
+              icon: const Icon(Icons.shopping_bag)),  IconButton(onPressed:
+              () => Get.toNamed(ProfileScreen.routeName),
               icon: const Icon(CupertinoIcons.profile_circled)), IconButton(onPressed: () => Get
               .toNamed(CartScreen.routeName),
-              icon: const Icon(CupertinoIcons.bag)),
+              icon: const Icon(CupertinoIcons.shopping_cart)),
           IconButton(
               onPressed: () {
                 Get.toNamed(ProductFlashScreen.routeName);

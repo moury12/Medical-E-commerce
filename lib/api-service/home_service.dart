@@ -1,5 +1,6 @@
 import 'package:medi_source_apitest/controller/home_controller.dart';
 import 'package:medi_source_apitest/models/district_model.dart';
+import 'package:medi_source_apitest/models/order_model.dart';
 import 'package:medi_source_apitest/models/product_model.dart';
 import 'package:mh_core/services/api_service.dart';
 import 'package:mh_core/utils/global.dart';
@@ -86,15 +87,16 @@ class HomeService {
     }
     return productList;
   }
-  static Future<List<ProductModel>> getProductSearchList(
-      {String? key,
-      int nextPageUrl = 1,
-      int initPage = 1,
-    }) async {
+
+  static Future<List<ProductModel>> getProductSearchList({
+    String? key,
+    int nextPageUrl = 1,
+    int initPage = 1,
+  }) async {
     List<ProductModel> productList = [];
 
-    var url = '${ServiceAPI.apiUrl}products/?${key!=null&&key.isNotEmpty
-        ?'search=$key&':''}pagination=20'
+    var url =
+        '${ServiceAPI.apiUrl}products/?${key != null && key.isNotEmpty ? 'search=$key&' : ''}pagination=20'
         '&page=${nextPageUrl.toString() ?? '1'}';
     globalLogger.d(url, 'url');
     final response =
@@ -114,19 +116,21 @@ class HomeService {
     }
     return productList;
   }
-  static Future<List<ProductModel>> getFlashProductList(
-      {String? key,
-        int nextPageUrl = 1,
-        int initPage = 1,
-        String? activeCategory,
-        }) async {
+
+  static Future<List<ProductModel>> getFlashProductList({
+    String? key,
+    int nextPageUrl = 1,
+    int initPage = 1,
+    String? activeCategory,
+  }) async {
     List<ProductModel> productList = [];
 
-    var url = '${ServiceAPI.apiUrl}products/?pagination=20&is_flash_sale=1&category_id'
+    var url =
+        '${ServiceAPI.apiUrl}products/?pagination=20&is_flash_sale=1&category_id'
         '=$activeCategory&page=${nextPageUrl.toString() ?? '1'}';
     globalLogger.d(url, 'url');
     final response =
-    await ServiceAPI.genericCall(url: url, httpMethod: HttpMethod.get);
+        await ServiceAPI.genericCall(url: url, httpMethod: HttpMethod.get);
     globalLogger.d(response, "Get flash products ");
     if (response['status'] != null && response['status']) {
       response['data']['data'].forEach((product) {
@@ -143,6 +147,33 @@ class HomeService {
     return productList;
   }
 
+  static Future<List<OrderModel>> getOrderData(String? nextPageUrl) async {
+    List<OrderModel> orderList = [];
+    final response = await ServiceAPI.genericCall(
+        url: '${ServiceAPI.apiUrl}order-list?page${nextPageUrl ?? '1'}',
+        httpMethod: HttpMethod.get);
+    if (response['status'] != null && response['status']) {
+      response['data']['data'].forEach((order) {
+        orderList.add(OrderModel.fromJson(order));
+      });
+    }else{
+      showSnackBar(msg: response['message']);
+    }
+    return orderList;
+  }
 
-
+  static Future<bool> checkoutCall(dynamic body) async {
+    final response = await ServiceAPI.genericCall(
+        url: '${ServiceAPI.apiUrl}order',
+        httpMethod: HttpMethod.multipartFilePost,
+        needJsonContentType: false,
+        allInfoField: body);
+    globalLogger.d(response, "Checkout Route");
+    if (response['status'] != null && response['status']) {
+      return response['status'];
+    } else if (response['status'] != null && !response['status']) {
+      ServiceAPI.showAlert(response['message']);
+    }
+    return false;
+  }
 }
