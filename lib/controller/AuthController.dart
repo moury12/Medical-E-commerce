@@ -31,6 +31,7 @@ class AuthController extends GetxController {
   RxMap loginUserInfoLoad = {}.obs;
   RxBool isLoggedIn = false.obs;
   RxBool isLogInBack = false.obs;
+  RxBool isChangePassword = false.obs;
   String? token;
   @override
   void onInit() {
@@ -67,11 +68,11 @@ getAccessToken();
     }
   }
 
-  void registerationRequest(
+  void registrationRequest(
     String name,
     String phone,
-    String district_id,
-    String area_id,
+    String districtId,
+    String areaId,
     String address,
     String password,
   ) async {
@@ -79,8 +80,8 @@ getAccessToken();
     final isCreated = await AuthService.registerCall({
       'name': name,
       'phone': phone,
-      'district_id': district_id,
-      'area_id': area_id,
+      'district_id': districtId,
+      'area_id': areaId,
       'address': address,
       'password': password
     });
@@ -89,20 +90,21 @@ getAccessToken();
       Get.offAndToNamed(LoginPage.routeName);
     }
     else{
-      showSnackBar(msg: 'faild');
+      showSnackBar(msg: 'failed');
     }
   }
-  void registerOtpVerification([bool isFromChangePassword= false]) async{
+  void registerOtpVerification() async{
     final accessToken = await AuthService.verifyAfterLoginOtp
       ({'phone':registerPhone.value,'otp':otp.value});
     globalLogger.d(accessToken, 'accessToken');
     if(accessToken['token']!=null&&accessToken['token'].isNotEmpty){
-    if(isFromChangePassword){
-      showSnackBar(msg: 'Otp Matched successfully!!');
+    if(isChangePassword.isTrue){
+      showSnackBar(msg: 'Otp Matched '
+          'successfully!!');
       Get.toNamed(CreateNewPasswordPage.routeName);
     }
     else{
-      globalLogger.d(accessToken['token'],'rrttrete');
+      globalLogger.d(accessToken['token'],'accessToken');
       afterLogin(accessToken['token']);
     }
     }
@@ -128,26 +130,26 @@ getAccessToken();
     afterLoginArg(arg);
     isLogInBack(isBack);
   }
-  Future<void> forgetpassword(String phone, [bool isResend= false]) async{
+  Future<void> forgetPassword(String phone, [bool isResend= false]) async{
     registerPhone(phone);
-    bool issendOtp=await AuthService.forgotPassword({
+    bool isSendOtp=await AuthService.forgotPassword({
      'phone' : phone
     });
-    if(issendOtp){
+    if(isSendOtp){
       showSnackBar(msg: 'Otp send');
       if(!isResend){
         Get.offAndToNamed(OtpVerificationPage.routeName);
       }
     }
   }
-  void verifyPassword(String password , String cPAssword)async{
+  void verifyPassword(String password , String cPassword)async{
     bool isVerified= await AuthService.resetPassword({
       'phone':registerPhone.value,
           'new_password':password,
-    'confirm_password':cPAssword
+    'confirm_password':cPassword
     });
     if(isVerified){
-      showSnackBar(msg: 'Verified successfuly');
+      showSnackBar(msg: 'Verified successfully');
       Get.offAndToNamed(LoginPage.routeName);
     }
   }

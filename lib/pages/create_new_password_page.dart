@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:medi_source_apitest/constant/colorConstant.dart';
 import 'package:medi_source_apitest/controller/AuthController.dart';
+import 'package:medi_source_apitest/controller/user_controller.dart';
 import 'package:medi_source_apitest/shared_widgets/custom_sized_box.dart';
 import 'package:medi_source_apitest/theme_data.dart';
 
 import 'package:mh_core/utils/global.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
 import 'package:mh_core/widgets/textfield/custom_textfield.dart';
-
 
 class CreateNewPasswordPage extends StatefulWidget {
   const CreateNewPasswordPage({super.key});
@@ -41,7 +41,6 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -98,7 +97,8 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
               marginHorizontal: 0,
               obscureText: true,
               controller: confirmPasswordController,
-              labelText: isLoggedIn ? 'Confirm New Password' : 'Confirm Password',
+              labelText:
+                  isLoggedIn ? 'Confirm New Password' : 'Confirm Password',
               hintText: 'Enter your password',
               suffixIconColor: AppColors.kPrimaryColor,
               isPassword: true,
@@ -120,12 +120,31 @@ class _CreateNewPasswordPageState extends State<CreateNewPasswordPage> {
             CustomButton(
               marginHorizontal: 0,
               label: 'Reset Password',
-              onPressed: (){
-if(passwordController.text.isEmpty||confirmPasswordController.text.isEmpty){
-  showSnackBar(msg: 'All fields required');
-}else{
-  AuthController.to.verifyPassword(passwordController.text,confirmPasswordController.text);
-}
+              onPressed: () {
+                if (isLoggedIn) {
+                  if (passwordController.text.isEmpty ||
+                      confirmPasswordController.text
+                          .isEmpty||oldPasswordController.text.isEmpty) {
+                    showSnackBar(msg: 'All fields required');
+                  }
+                  else{
+                    final body ={
+                      'phone':UserController.to.userInfo.value.phone??'',
+                      'old_password':oldPasswordController.text,
+                      'new_password':passwordController.text,
+                      'confirm_password':confirmPasswordController.text
+                    };
+                    UserController.to.changePasswordCall(body);
+                  }
+                } else {
+                  if (passwordController.text.isEmpty ||
+                      confirmPasswordController.text.isEmpty) {
+                    showSnackBar(msg: 'All fields required');
+                  } else {
+                    AuthController.to.verifyPassword(passwordController.text,
+                        confirmPasswordController.text);
+                  }
+                }
               },
             ),
           ],

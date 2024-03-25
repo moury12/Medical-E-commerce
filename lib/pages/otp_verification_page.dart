@@ -125,13 +125,13 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                       fifthOtpController.text.isNotEmpty &&
                       sixthOtpController.text.isNotEmpty){
                     AuthController.to.otp(firstOtpController.text+secondOtpController.text+thirdOtpController.text+forthOtpController.text+fifthOtpController.text+sixthOtpController.text);
-if (previousRoute==LoginPage.routeName){
+if (AuthController.to.isChangePassword.isTrue){
   AuthController.to.registerOtpVerification();
-}else if(previousRoute==ForgotPasswordPage.routeName){
-  AuthController.to.registerOtpVerification(true);
 
 }else{
-  showSnackBar(msg: 'please enter 6 digit');
+    AuthController.to.isChangePassword.value=false;
+  AuthController.to.registerOtpVerification();
+
 }
                   }else{
                     showSnackBar(msg: 'field required');
@@ -142,7 +142,7 @@ if (previousRoute==LoginPage.routeName){
                 child: TextButton(
                   child: Text('Resend OTP'),
                   onPressed: () async {
-                    AuthController.to.forgetpassword(AuthController.to.registerPhone.value,true);
+                    AuthController.to.forgetPassword(AuthController.to.registerPhone.value,true);
                   },
                 ),
               )

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medi_source_apitest/controller/AuthController.dart';
+import 'package:medi_source_apitest/controller/user_controller.dart';
 import 'package:medi_source_apitest/theme_data.dart';
 import 'package:mh_core/utils/global.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
@@ -69,7 +70,8 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     showSnackBar(msg: 'Enter Phone Number First!');
                   }
                   else{
-                    AuthController.to.forgetpassword(phoneController.text);
+                    AuthController.to.forgetPassword(phoneController.text);
+                    AuthController.to.isChangePassword.value=true;
                   }
                   // Get.toNamed(OtpVerificationPage.routeName);
                 },

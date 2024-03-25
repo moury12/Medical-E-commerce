@@ -9,6 +9,8 @@ import 'package:medi_source_apitest/pages/login_page.dart';
 import 'package:medi_source_apitest/pages/order_list_page.dart';
 import 'package:medi_source_apitest/pages/order_list_page.dart';
 import 'package:medi_source_apitest/pages/otp_verification_page.dart';
+import 'package:medi_source_apitest/pages/profile/edit_profile_page.dart';
+import 'package:medi_source_apitest/pages/profile/edit_profile_page.dart';
 import 'package:medi_source_apitest/pages/profile_page.dart';
 import 'package:medi_source_apitest/pages/profile_page.dart';
 import 'package:medi_source_apitest/pages/registration_screen.dart';
@@ -21,6 +23,7 @@ class AppRoutes{
     GetPage(name: SignupScreen.routeName, page:() => SignupScreen(), ),
     GetPage(name: OtpVerificationPage.routeName, page:() => const OtpVerificationPage(), ),
     GetPage(name: HomePage.routeName, page:() => const HomePage(), ),
+    GetPage(name: EditProfileScreen.routeName, page:() => const EditProfileScreen(), ),
     GetPage(name: CartScreen.routeName, page:() => const CartScreen(), ),
     GetPage(name: OrderListScreen.routeName, page:() => const OrderListScreen(), ),
     GetPage(name: ProfileScreen.routeName, page:() => const ProfileScreen(), ),

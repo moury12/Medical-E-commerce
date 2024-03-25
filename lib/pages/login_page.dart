@@ -143,6 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                         label: 'Login',
                         onPressed: () {
 AuthController.to.loginRequest(phoneController.text, passwordController.text);
+AuthController.to.isChangePassword.value=false;
                         },
                       ),
                       Row(

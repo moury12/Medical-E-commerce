@@ -95,15 +95,15 @@ return false;
   }
 
   static Future<bool> resetPassword (dynamic body) async{
-    final respons =await ServiceAPI.genericCall(url: '${ServiceAPI
+    final response =await ServiceAPI.genericCall(url: '${ServiceAPI
         .apiUrl}new-password-set', httpMethod: HttpMethod.multipartFilePost,
         noNeedAuthToken: true,allInfoField: body,isLoadingEnable: true);
-    globalLogger.d(respons,'resetPassword' );
-    if(respons['status']!=null && respons['status']){
+    globalLogger.d(response,'resetPassword' );
+    if(response['status']!=null && response['status']){
       return true;
     }
     else{
-      ServiceAPI.showAlert(errorMessageJson(respons['message']));
+      ServiceAPI.showAlert(errorMessageJson(response['message']));
     }
     return false;
   }

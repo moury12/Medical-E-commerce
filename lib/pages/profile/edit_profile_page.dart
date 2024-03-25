@@ -1,34 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:medi_source_apitest/constant/colorConstant.dart';
 import 'package:medi_source_apitest/controller/AuthController.dart';
+import 'package:medi_source_apitest/controller/user_controller.dart';
 import 'package:medi_source_apitest/pages/login_page.dart';
 import 'package:mh_core/utils/global.dart';
 import 'package:mh_core/widgets/button/custom_button.dart';
 import 'package:mh_core/widgets/dropdown/custom_dropdown.dart';
 import 'package:mh_core/widgets/textfield/custom_textfield.dart';
 
-import '../constant/colorConstant.dart';
-
-class SignupScreen extends StatefulWidget {
-  static const String routeName = "/signup";
-  SignupScreen({super.key});
+class EditProfileScreen extends StatefulWidget {
+  static const String routeName = "/editProfile";
+  const EditProfileScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
+class _EditProfileScreenState extends State<EditProfileScreen> {
+  TextEditingController nameController = TextEditingController(text:
+  UserController.to.userInfo.value.name);
+  TextEditingController emailController = TextEditingController(text:
+  UserController.to.userInfo.value.email);
+  TextEditingController phoneController = TextEditingController(text:
+  UserController.to.userInfo.value.phone);
+  TextEditingController addressController = TextEditingController(text:
+  UserController.to.userInfo.value.address);
 
   bool isSelected = false;
 
-  String? selectedDistrict;
-  String? selectedArea;
+  String selectedDistrict=UserController.to.userInfo.value.districtId??'';
+  String selectedArea=UserController.to.userInfo.value.areaId??'';
 
   @override
   void dispose() {
@@ -36,8 +38,7 @@ class _SignupScreenState extends State<SignupScreen> {
     emailController.dispose();
     phoneController.dispose();
     addressController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
+
     super.dispose();
   }
 
@@ -69,7 +70,6 @@ class _SignupScreenState extends State<SignupScreen> {
               labelText: 'Phone Number',
               hintText: 'Enter your phone number',
             ),
-
             TitleDropdown(
               borderColor: AppColors.kPrimaryColor.withOpacity(.8),
               hintText: 'Select District',
@@ -119,77 +119,29 @@ class _SignupScreenState extends State<SignupScreen> {
               labelText: 'Address',
               hintText: 'Enter your address number',
             ),
-            CustomTextField(
-              enableBorderColor: AppColors.kPrimaryColor.withOpacity(.8),
-              borderWidth: .8,
-              focusColor: AppColors.kPrimaryColor.withOpacity(.8),
-              marginVertical: 0,
-              marginHorizontal: 0,
-              controller: passwordController,
-              labelText: 'Password',
-              hintText: 'Enter your password',
-              suffixIconColor: AppColors.kPrimaryColor,
-              isPassword: true,
-              obscureText: true,
-            ),
-            // Row(
-            //   mainAxisSize: MainAxisSize.min,
-            //   children: [
-            //     CustomCheckBox(
-            //         label: 'I agree to the',
-            //         value: isSelected,
-            //         onChange: (val) {
-            //           isSelected = val;
-            //           setState(() {});
-            //         }),
-            //     CustomTextButton(
-            //       label: 'Privacy Policy',
-            //       onTap: () {
-            //         Get.toNamed(TermsPrivacyPage.routeName,
-            //             arguments: {ArgumentType.from: FromArgument.privacy});
-            //       },
-            //     ),
-            //   ],
-            // ),
             CustomButton(
               marginHorizontal: 0,
               marginVertical: 0,
-              label: 'Signup',
+              label: 'update',
               onPressed: () {
-
-    if (nameController.text.isEmpty ||
-    // emailController.text.isEmpty &&
-    phoneController.text.isEmpty ||
-    selectedDistrict == null ||
-    selectedArea == null ||
-    addressController.text.isEmpty ||
-    passwordController.text
-        .isEmpty /*||
-                        confirmPasswordController.text.isEmpty*/
-    ) {
-    showSnackBar(msg: 'All Fields are required!');
-    }else{
-AuthController.to.registrationRequest( nameController.text,
-    phoneController.text,
-    selectedDistrict!,
-    selectedArea!,
-    addressController.text,
-    passwordController.text);
-    }
-
-    },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Already have and account?'),
-               TextButton(
-                  child: Text('Login'),
-                  onPressed: () {
-                    Get.offNamed(LoginPage.routeName);
-                  },
-                ),
-              ],
+                if (nameController.text.isEmpty ||
+                    emailController.text.isEmpty &&
+                        phoneController.text.isEmpty ||
+                    selectedDistrict == null ||
+                    selectedArea == null ||
+                    addressController.text.isEmpty) {
+                  showSnackBar(msg: 'All Fields are required!');
+                } else {
+                  final body = {
+                    'name': nameController.text,
+                    'phone': phoneController.text,
+                    'district_id': selectedDistrict!,
+                    'area_id': selectedArea!,
+                    'address': addressController.text
+                  };
+                  UserController.to.updateUserProfileCall(body);
+                }
+              },
             ),
           ],
         ));
